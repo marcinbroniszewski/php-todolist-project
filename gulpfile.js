@@ -59,7 +59,7 @@ function minifyImages(done) {
 
 function startBrowserSync(done) {
 	browserSync.init({
-		proxy: 'php-todolist.local',
+		proxy: 'php-todolist.test',
 		port: 3000,
 	});
 	done();
