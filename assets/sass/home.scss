@@ -1,0 +1,60 @@
+@use './reset';
+@use './colors' as c;
+
+.main {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.home-h1 {
+    max-width: 850px;
+    font-size: 3rem;
+}
+
+.home-subtext {
+    font-size: 1.3rem;
+    color: rgba(35, 33, 21, 0.65);
+}
+
+.signup-btn {
+    padding: 12px 15px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: c.$main-yellow;
+    border-radius: 8px;
+}
+
+.todolist-img {
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+.home-text-box {
+    margin: 0 40px;
+}
+
+    .home-h1 {
+        font-size: 3.5rem;
+    }
+
+    .home-subtext {
+        max-width: 650px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .home-h1 {
+        font-size: 5rem;
+    }
+
+    .home-subtext {
+        font-size: 1.8rem;
+    }
+
+    .signup-btn {
+        font-size: 1.8rem;
+    }
+}

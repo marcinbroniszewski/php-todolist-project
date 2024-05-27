@@ -9,25 +9,25 @@ function basePath(string $path = ''): string
 
 function loadView(string $name, array $data = []): void
 {
-    $viewPath =  basePath("App/views/{$name}.view.php");
+    $viewPath =  basePath("src/App/views/{$name}.view.php");
 
     if (file_exists($viewPath)) {
         extract($data, EXTR_SKIP);
 
         require $viewPath;
     } else {
-        echo "View '{$name} not found!'";
+        echo "View '{$name}' not found!";
     }
 }
 
 function loadPartial(string $name): void
 {
-    $partialPath =  basePath("App/views/partials/{$name}.php");
+    $partialPath =  basePath("src/App/views/partials/{$name}.php");
 
     if (file_exists($partialPath)) {
         require $partialPath;
     } else {
-        echo "Partial '{$name} not found!'";
+        echo "Partial '{$name}' not found!";
     }
 }
 

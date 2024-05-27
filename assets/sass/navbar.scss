@@ -1,0 +1,33 @@
+@use './reset';
+@use './colors' as c;
+
+.navbar {
+
+.navbar-logo {
+    font-size: 2.5rem;
+}
+    .fa-note-sticky {
+        color: red;
+    }
+
+    .navbar-container {
+        display: flex;
+        margin: 0 auto;
+        max-width: 1600px;
+        width: 100%;
+    }
+
+    .navbar-nav {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .signup-btn {
+       padding: 0 10px;
+     background-color: c.$main-yellow;
+        border-radius: 8px;
+        line-height: 50px;
+        font-weight: bold;
+        color: #ffffff;
+    }
+}
