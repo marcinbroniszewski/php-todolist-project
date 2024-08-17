@@ -1,5 +1,5 @@
 {
-	"name": "ibron/php-todolist",
+	"name": "marcin/php-todolist",
 	"type": "project",
 	"require": {},
 	"autoload": {

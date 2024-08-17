@@ -1,4 +1,4 @@
-<?= loadPartial('head') ?>
+<?= loadPartial('head', ['title' => $title, 'css' => $css]) ?>
 <?= loadPartial('navigation') ?>
 
 <body>

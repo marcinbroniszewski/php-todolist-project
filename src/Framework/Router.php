@@ -49,9 +49,8 @@ class Router
                 $controllerInstance = new $controller();
                 $controllerInstance->$controllerMethod();
                 return;
-            } else {
-                echo '404';
             }
         }
+        echo '404';           
     }
 }
