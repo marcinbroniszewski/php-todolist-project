@@ -1,75 +1,84 @@
-@use './reset';
-@use './colors' as c;
+@use "./reset";
+@use "./colors" as c;
 
 .info {
-    padding: 20px 40px;
-    margin: 0 10px;
-    max-width: 500px;
-    background-color: rgba($color: #ddd, $alpha: 0.3);
-    border-radius: 8px;
+  padding: 20px 40px;
+  margin: 0 10px;
+  max-width: 500px;
+  background-color: rgba($color: #ddd, $alpha: 0.3);
+  border-radius: 8px;
 }
 
 .token-error-img {
- max-width: 100vw;
+  max-width: 100vw;
 }
 
 .sign-section {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    min-height: 60vh;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 60vh;
 }
 
 .sign-form {
-    width: 100%;
-    padding: 20px 10px;
-    max-width: 800px;
-    font-size: 1.6rem;
+  width: 100%;
+  padding: 20px 10px;
+  max-width: 800px;
+  font-size: 1.6rem;
 }
 
 .form-control {
-    margin-bottom: 15px;
-    font-size: 1.6rem !important;
+  margin-bottom: 15px;
+  font-size: 1.6rem !important;
 }
 
 .sign-btn {
-    margin-top: 10px;
-    font-size: 1.8rem !important;
+  margin-top: 10px;
+  font-size: 1.8rem !important;
 }
 
 .sign-h1 {
-    font-size: 3rem;
+  font-size: 3rem;
 }
 
 .switch-paragraph {
-    font-size: 1.4rem;
+  font-size: 1.4rem;
 }
 
 .switch-link {
-    font-size: 1.4rem;
-    color: #ffad84;
+  font-size: 1.4rem;
+  color: #ffad84;
 }
 
 .recover-pwd-link {
-    color: rgb(105, 190, 66);
-    font-size: 1.4rem;
+  color: rgb(105, 190, 66);
+  font-size: 1.4rem;
+}
+
+.error {
+  position: relative;
+  top: -10px;
+  font-size: 1.4rem;
+  font-style: italic;
 }
 
 @media (min-width: 576px) {
-    .sign-form {
-        width: 60%;
-        font-size: 1.6rem;
-    }
+  .sign-form {
+    width: 60%;
+    font-size: 1.6rem;
+  }
 
-    .sign-h1 {
-        font-size: 4rem;
-    }
+  .sign-h1 {
+    font-size: 4rem;
+  }
 
-    .sign-btn {
-        font-size: 2rem;
-    }
+  .sign-btn {
+    font-size: 2rem;
+  }
 
-    .switch-paragraph, .switch-link, .form-control {
-        font-size: 1.6rem;
-    }
+  .switch-paragraph,
+  .switch-link,
+  .form-control {
+    font-size: 1.6rem;
+  }
 }

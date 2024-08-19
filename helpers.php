@@ -39,3 +39,7 @@ function loadPartial(string $name, array $data = []): void
     echo '</pre>';
     die();
  }
+
+ function sanitize(string $value): string {
+    return filter_var(trim($value), FILTER_SANITIZE_SPECIAL_CHARS);
+ }
