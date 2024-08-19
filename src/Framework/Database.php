@@ -26,12 +26,16 @@ class Database
         }
     }
 
-    public function query(string $query)
+    public function query(string $query, array $params = [])
     {
         try {
-            $stm = $this->conn->prepare($query);
-            $stm->execute();
-            return $stm;
+            $stmt = $this->conn->prepare($query);
+
+            foreach ($params as $param => $value) {
+                $stmt->bindValue(':' . $param, $value);
+            }
+            $stmt->execute();
+            return $stmt;
         } catch (PDOException $e) {
             throw new PDOException("Query failed to execute: {$e->getMessage()}");
         }

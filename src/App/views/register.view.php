@@ -42,7 +42,7 @@ if (isset($_SESSION['signup-values'])) {
             <?php endif ?>
 
             <label for="confirm-password" class="form-label">Powtórz hasło</label>
-            <input type="confirm-password" class="form-control sign-input" name="confirm-pwd" id="confirm-password">
+            <input type="password" class="form-control sign-input" name="confirm-pwd" id="confirm-password">
             <?php if (isset($errors['confirmPwd'])) : ?>
                 <p class="error text-danger"><?= $errors['confirmPwd'] ?></p>
             <?php endif ?>
