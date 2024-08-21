@@ -1,7 +1,6 @@
 <?= loadPartial('head', ['title' => $title, 'css' => $css]) ?>
 <?= loadPartial('navigation') ?>
 <?php
-session_start();
 if (isset($_SESSION['signup-errors'])) {
     $errors = $_SESSION['signup-errors'];
 }
@@ -10,7 +9,6 @@ if (isset($_SESSION['signup-values'])) {
     $signupValues = $_SESSION['signup-values'];
 }
 ?>
-
 
 <body>
     <section class="d-flex flex-column justify-content-center align-items-center sign-section">

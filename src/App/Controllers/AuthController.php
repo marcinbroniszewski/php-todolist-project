@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Framework\Database;
-use Framework\Validation;
+use Framework\{Database, Validation, Session};
 
 class AuthController
 {
@@ -86,7 +85,7 @@ class AuthController
          $params = [
             'email' => $email
          ];
-         
+
          $user = $this->db->query('SELECT * FROM users WHERE email = :email', $params)->fetch();
 
          if ($user) {
@@ -97,11 +96,10 @@ class AuthController
 
       //Handling errors   
       if (!empty($errors)) {
-         session_start();
-         $_SESSION['signup-errors'] = $errors;
+         Session::set('signup-errors', $errors);
 
          if (isset($oldValues)) {
-            $_SESSION['signup-values'] = $oldValues;
+            Session::set('signup-values', $oldValues);
          }
 
          header("Location: /rejestracja");
@@ -111,9 +109,9 @@ class AuthController
       //Create user account
       $params = [
          'firstname' => ucfirst(strtolower($firstname)),
-         'lastname'=> ucfirst(strtolower($lastname)),
-         'email'=> $email,
-         'pwd'=> $pwd,
+         'lastname' => ucfirst(strtolower($lastname)),
+         'email' => $email,
+         'pwd' => password_hash($pwd, PASSWORD_DEFAULT)
       ];
 
       $this->db->query('INSERT INTO users (firstname, lastname, email, pwd) VALUES (:firstname, :lastname, :email, :pwd)', $params);
