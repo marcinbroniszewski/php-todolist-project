@@ -1,12 +1,16 @@
 <?= loadPartial('head', ['title' => $title, 'css' => $css]) ?>
 <?= loadPartial('navigation') ?>
+
 <?php
-if (isset($_SESSION['signup-errors'])) {
-    $errors = $_SESSION['signup-errors'];
+
+use Framework\Session;
+
+if (Session::check('signup-errors')) {
+    $errors = Session::get('signup-errors');
 }
 
-if (isset($_SESSION['signup-values'])) {
-    $signupValues = $_SESSION['signup-values'];
+if (Session::check('signup-errors')) {
+    $oldValues = Session::get('signup-values');
 }
 ?>
 
@@ -15,20 +19,20 @@ if (isset($_SESSION['signup-values'])) {
         <h1 class="sign-h1">Rejestracja</h1>
         <form class="sign-form" action="/rejestracja" method="post">
             <label for="firstname" class="form-label">Imię</label>
-            <input type="text" class="form-control sign-input" name="firstname" id="first-name" value="<?php echo $signupValues['firstname'] ?? '' ?>">
+            <input type="text" class="form-control sign-input" name="firstname" id="first-name" value="<?php echo $oldValues['firstname'] ?? '' ?>">
             <?php if (isset($errors['firstname'])) : ?>
                 <p class="error text-danger"><?= $errors['firstname'] ?></p>
             <?php endif ?>
 
             <p class="error text-danger"></p>
             <label for="lastname" class="form-label">Nazwisko</label>
-            <input type="text" class="form-control sign-input" name="lastname" id="last-name" value="<?php echo $signupValues['lastname'] ?? '' ?>">
+            <input type="text" class="form-control sign-input" name="lastname" id="last-name" value="<?php echo $oldValues['lastname'] ?? '' ?>">
             <?php if (isset($errors['lastname'])) : ?>
                 <p class="error text-danger"><?= $errors['lastname'] ?></p>
             <?php endif ?>
 
             <label for="email" class="form-label">Adres e-mail</label>
-            <input type="email" class="form-control sign-input" name="email" id="email" value="<?php echo $signupValues['email'] ?? '' ?>">
+            <input type="email" class="form-control sign-input" name="email" id="email" value="<?php echo $oldValues['email'] ?? '' ?>">
             <?php if (isset($errors['email'])) : ?>
                 <p class="error text-danger"><?= $errors['email'] ?></p>
             <?php endif ?>
@@ -55,8 +59,7 @@ if (isset($_SESSION['signup-values'])) {
     </section>
 
     <?php
-    unset($_SESSION['signup-errors']);
-    unset($_SESSION['signup-values']);
+    Session::clearAll();
     ?>
 
     <script src="js/sign-form.min.js"></script>

@@ -28,9 +28,7 @@ class AuthController
    public function store()
    {
       $allowedFields = ['firstname', 'lastname', 'email', 'pwd', 'confirm-pwd'];
-
       $newAuthData = array_intersect_key($_POST, array_flip($allowedFields));
-
       $newAuthData = array_map('sanitize', $newAuthData);
 
       $firstname = $newAuthData['firstname'];
@@ -116,6 +114,50 @@ class AuthController
 
       $this->db->query('INSERT INTO users (firstname, lastname, email, pwd) VALUES (:firstname, :lastname, :email, :pwd)', $params);
 
+      header('Location: /rejestracja');
+   }
+
+   public function authenticate()
+   {
+      $allowedFields = ['email', 'pwd'];
+      $newAuthData = array_intersect_key($_POST, array_flip($allowedFields));
+
+      $email = $newAuthData['email'];
+      $pwd = $newAuthData['pwd'];
+
+      //Checking for errors
+      $errors = [];
+      $oldValues = [];
+
+      if ($email === '') {
+         $errors['email'] = 'Podaj adres e-mail';
+      } else {
+         $oldValues['email'] = $email;
+      }
+
+      if ($pwd === '') {
+         $errors['pwd'] = 'Podaj hasło';
+      }
+
+      if (empty($errors)) {
+         $params = [
+            'email' => $email
+         ];
+
+         $user = $this->db->query('SELECT * FROM users where email = :email', $params)->fetch();
+
+         if (!$user) {
+            $errors['email'] = 'Użytkownik o podanym e-mailu nieistnieje';
+         } else if (!password_verify($pwd, $user['pwd'])) {
+            $errors['pwd'] = 'Podane hasło jest nieprawidłowe';
+         } else {
+            dd($user);
+            Session::set('user_id', $user['id']);
+         }
+      }
+      Session::set('signin-errors', $errors);
+      Session::set('signin-values', $oldValues);
       header('Location: /logowanie');
+      exit;
    }
 }

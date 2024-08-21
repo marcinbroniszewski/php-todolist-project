@@ -7,3 +7,4 @@ $router->get('/logowanie', 'AuthController@login');
 
 //POST
 $router->post('/rejestracja', 'AuthController@store');
+$router->post('/logowanie', 'AuthController@authenticate');
