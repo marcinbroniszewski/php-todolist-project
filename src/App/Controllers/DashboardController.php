@@ -20,6 +20,7 @@ class DashboardController
     {
         if (!Session::check('user')) {
             redirect('/logowanie');
+            exit;
         }
 
         $user = Session::get('user');
@@ -68,6 +69,7 @@ class DashboardController
     {
         if (!Session::check("user")) {
             redirect('/logowanie');
+            exit;
         }
 
         $user = Session::get('user');
@@ -95,12 +97,13 @@ class DashboardController
 
     public function addTodo()
     {
-        $title = $_POST['todo-title'];
-        $description = $_POST['todo-description'];
-
         if (!Session::check('user')) {
             redirect('/logowanie');
+            exit;
         }
+
+        $title = $_POST['todo-title'];
+        $description = $_POST['todo-description'];
 
         $user = Session::get('user');
         $userId = $user['id'];
@@ -120,5 +123,49 @@ class DashboardController
           );', $params);
 
         redirect('/panel');
+    }
+
+    public function updateTodo() {
+        if (!Session::check('user')) {
+            redirect('/logowanie');
+            exit;
+        }
+
+        $id = $_POST['id'];
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+
+        $user = Session::get('user');
+        $userId = $user['id'];
+
+        $params = [
+            'id' => $id,
+            'title' => $title,
+            'description' => $description,
+            'user_id' => $userId
+        ];
+
+        $this->db->query('UPDATE todos SET title = :title, description = :description WHERE user_id = :user_id AND id = :id;', $params);
+
+        redirect('/panel');
+    }
+
+    public function deleteTodo() {
+        if (!Session::check('user')) {
+            redirect('/logowanie');
+            exit;
+        }
+
+        $id = $_POST['id'];
+
+        $user = Session::get('user');
+        $userId = $user['id'];
+
+        $params = [
+            'id' => $id,
+            'user_id' => $userId
+        ];
+
+        $this->db->query('DELETE FROM todos WHERE user_id = :user_id AND id = :id', $params);
     }
 }
