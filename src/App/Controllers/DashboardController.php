@@ -64,6 +64,35 @@ class DashboardController
         }
     }
 
+    public function getAvatar()
+    {
+        if (!Session::check("user")) {
+            redirect('/logowanie');
+        }
+
+        $user = Session::get('user');
+
+        $extensions = ['png', 'jpg', 'jpeg', 'webp'];
+        $avatarPath = null;
+
+        foreach ($extensions as $extension) {
+            $path = basePath('private/icons/' . $user['id'] . '.' . $extension);
+            if (file_exists($path)) {
+                $avatarPath = $path;
+            }
+        };
+
+        if (!file_exists($avatarPath)) {
+            $avatarPath = basePath('private/icons/default-icon.png');
+        }
+
+        $extension = pathinfo($avatarPath, PATHINFO_EXTENSION);
+
+        header('Content-Type: image/' . $extension);
+        readfile($avatarPath);
+        exit;
+    }
+
     public function addTodo()
     {
         $title = $_POST['todo-title'];

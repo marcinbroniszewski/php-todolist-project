@@ -6,6 +6,7 @@ $router->get('/rejestracja', 'AuthController@register');
 $router->get('/logowanie', 'AuthController@login');
 $router->get('/panel', 'DashboardController@index');
 $router->get('/api/get-date','DashboardController@getDate');
+$router->get('/user/avatar', 'DashboardController@getAvatar');
 
 //POST
 $router->post('/rejestracja', 'AuthController@store');

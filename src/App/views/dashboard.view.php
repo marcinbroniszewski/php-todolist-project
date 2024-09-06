@@ -40,7 +40,7 @@
                 $lastname = htmlspecialchars($user['lastname']);
                 echo "<h1 class='welcome-header mt-5 py-3 text-light-gray'>Witaj, $firstname!</h1>";
                 ?>
-                <div class="profile-box"><span><img src="" alt="profile icon" class="profile-icon"></span>
+                <div class="profile-box"><span><img src="/user/avatar" alt="profile icon" class="profile-icon"></span>
                     <?php echo "<span class='profile-name'>$firstname $lastname</span>"; ?>
                 </div>
                 <div class="d-flex mb-3">
