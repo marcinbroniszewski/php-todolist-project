@@ -1,21 +1,6 @@
 <?= loadPartial('head', ['title' => $title, 'css' => $css]) ?>
 <?= loadPartial('navigation') ?>
 
-<?php
-
-use Framework\Session;
-
-if (Session::check('signin-errors')) {
-    $errors = Session::get('signin-errors');
-}
-
-if (Session::check('signin-values')) {
-    // var_dump($_SESSION['signin-values']);
-    $oldValues = Session::get('signin-values');
-    // dd($oldValues);
-}
-?>
-
 <body>
     <section class="d-flex flex-column justify-content-center align-items-center sign-section">
         <h1 class="sign-h1">Logowanie</h1>
@@ -38,9 +23,6 @@ if (Session::check('signin-values')) {
         <p class="switch-paragraph">Nie posiadasz konta? <a class="switch-link" href="/rejestracja">Zarejestruj się</a></p>
     </section>
 
-    <?php
-    Session::clearAll();
-    ?>
     <script src="js/sign-form.min.js"></script>
 
 </body>

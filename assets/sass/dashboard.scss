@@ -179,7 +179,6 @@ textarea.form-control {
 	height: 45px;
 	width: 130px;
 	border-radius: 8px;
-	font-size: 1.4rem;
 }
 
 .date {
@@ -219,13 +218,14 @@ textarea.form-control {
 	display: block;
 	width: 35px;
 	height: 35px;
-	background-color: c.$light-gray;
+	background-color: c.$light-gray !important;
+	color: black;
 	text-align: center;
 	transition: background-color 0.2s;
 }
 
 .switch-month-btn:hover {
-	background-color: #afaaaa;
+	background-color: #afaaaa !important;
 }
 
 .todos-box {

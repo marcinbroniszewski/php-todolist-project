@@ -18,11 +18,34 @@ class AuthController
 
    public function register()
    {
-      loadView("register", ['title' => 'Zarejestruj się', 'css' => 'sign-form']);
+      $errors = [];
+      $oldValues = [];
+
+      if (Session::check('signup-errors')) {
+         $errors = Session::get('signup-errors');
+      }
+
+      if (Session::check('signup-errors')) {
+         $oldValues = Session::get('signup-values');
+      }
+      loadView("register", ['title' => 'Zarejestruj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
+      Session::clearAll();
    }
+   
    public function login()
    {
-      loadView("login", ['title' => 'Zaloguj się', 'css' => 'sign-form']);
+      $errors = [];
+      $oldValues = [];
+
+      if (Session::check('signin-errors')) {
+         $errors = Session::get('signin-errors');
+     }
+     
+     if (Session::check('signin-values')) {
+         $oldValues = Session::get('signin-values');
+     }
+      loadView("login", ['title' => 'Zaloguj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues'=> $oldValues]);
+      Session::clearAll();
    }
 
    public function store()
@@ -151,8 +174,9 @@ class AuthController
          } else if (!password_verify($pwd, $user['pwd'])) {
             $errors['pwd'] = 'Podane hasło jest nieprawidłowe';
          } else {
-            dd($user);
-            Session::set('user_id', $user['id']);
+            header('Location: /panel');
+            Session::set('user', $user);
+            exit;
          }
       }
       Session::set('signin-errors', $errors);

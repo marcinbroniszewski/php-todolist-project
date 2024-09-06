@@ -43,3 +43,7 @@ function loadPartial(string $name, array $data = []): void
  function sanitize(string $value): string {
     return filter_var(trim($value), FILTER_SANITIZE_SPECIAL_CHARS);
  }
+
+ function redirect(string $path): void {
+    header('Location: ' . $path);
+ }

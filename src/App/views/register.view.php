@@ -1,19 +1,6 @@
 <?= loadPartial('head', ['title' => $title, 'css' => $css]) ?>
 <?= loadPartial('navigation') ?>
 
-<?php
-
-use Framework\Session;
-
-if (Session::check('signup-errors')) {
-    $errors = Session::get('signup-errors');
-}
-
-if (Session::check('signup-errors')) {
-    $oldValues = Session::get('signup-values');
-}
-?>
-
 <body>
     <section class="d-flex flex-column justify-content-center align-items-center sign-section">
         <h1 class="sign-h1">Rejestracja</h1>
@@ -57,10 +44,6 @@ if (Session::check('signup-errors')) {
             </p>
         </div>
     </section>
-
-    <?php
-    Session::clearAll();
-    ?>
 
     <script src="js/sign-form.min.js"></script>
 

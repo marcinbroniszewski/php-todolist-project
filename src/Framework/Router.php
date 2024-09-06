@@ -45,7 +45,7 @@ class Router
             if ($route['uri'] === $uri && $route['method'] === $method) {
                 $controller = 'App\\Controllers\\' . $route['controller'];
                 $controllerMethod = $route['controllerMethod'];
-
+                
                 $controllerInstance = new $controller();
                 $controllerInstance->$controllerMethod();
                 return;
