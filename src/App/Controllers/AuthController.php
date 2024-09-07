@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Framework\{Database, Validation, Session};
+use Framework\{Validation, Session};
+use App\Models\AuthModel;
 
 class AuthController
 {
-   protected $db;
+   protected $model;
 
    public function __construct()
    {
-      $config = require basePath("config/db.php");
-      $this->db = new Database($config);
+      $this->model = new AuthModel();
    }
 
    public function register()
@@ -31,7 +31,7 @@ class AuthController
       loadView("register", ['title' => 'Zarejestruj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
       Session::clearAll();
    }
-   
+
    public function login()
    {
       $errors = [];
@@ -39,12 +39,12 @@ class AuthController
 
       if (Session::check('signin-errors')) {
          $errors = Session::get('signin-errors');
-     }
-     
-     if (Session::check('signin-values')) {
+      }
+
+      if (Session::check('signin-values')) {
          $oldValues = Session::get('signin-values');
-     }
-      loadView("login", ['title' => 'Zaloguj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues'=> $oldValues]);
+      }
+      loadView("login", ['title' => 'Zaloguj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
       Session::clearAll();
    }
 
@@ -103,11 +103,7 @@ class AuthController
 
       //Checking if email exists in database
       if (empty($errors['email'])) {
-         $params = [
-            'email' => $email
-         ];
-
-         $user = $this->db->query('SELECT * FROM users WHERE email = :email', $params)->fetch();
+         $user = $this->model->getUser($email);
 
          if ($user) {
             $errors['email'] = 'Konto o podanym e-mailu już istnieje';
@@ -128,14 +124,7 @@ class AuthController
       }
 
       //Create user account
-      $params = [
-         'firstname' => ucfirst(strtolower($firstname)),
-         'lastname' => ucfirst(strtolower($lastname)),
-         'email' => $email,
-         'pwd' => password_hash($pwd, PASSWORD_DEFAULT)
-      ];
-
-      $this->db->query('INSERT INTO users (firstname, lastname, email, pwd) VALUES (:firstname, :lastname, :email, :pwd)', $params);
+      $this->model->setUser($firstname, $lastname, $email, $pwd);
 
       header('Location: /rejestracja');
    }
@@ -163,11 +152,9 @@ class AuthController
       }
 
       if (empty($errors)) {
-         $params = [
-            'email' => $email
-         ];
 
-         $user = $this->db->query('SELECT * FROM users where email = :email', $params)->fetch();
+         //Getting user data
+         $user = $this->model->getUser($email);
 
          if (!$user) {
             $errors['email'] = 'Użytkownik o podanym e-mailu nieistnieje';
