@@ -13,6 +13,7 @@ $router->post('/rejestracja', 'AuthController@store');
 $router->post('/logowanie', 'AuthController@authenticate');
 $router->post('/api/send-date', 'DashboardController@sendDate');
 $router->post('/api/add-todo', 'DashboardController@addTodo');
-$router->post('/api/edit-todo', 'DashboardController@updateTodo');
-$router->post('/api/delete-todo', 'DashboardController@deleteTodo');
-
+$router->post('/api/edit-todo', 'DashboardController@editTodo');
+$router->post('/api/delete-todo', 'DashboardController@removeTodo');
+$router->post('/api/check-todo', 'DashboardController@checkTodo');
+$router->post('/user/logout', 'DashboardController@logout');

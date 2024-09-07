@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Framework\{Session, Database};
+use Framework\Session;
+use App\Models\DashboardModel;
 
 class DashboardController
 {
-    protected $db;
+    protected $model;
 
     public function __construct()
     {
-        $config = require basePath("config/db.php");
-        $this->db = new Database($config);
+        $this->model = new DashboardModel();
     }
-
     public function index()
     {
         if (!Session::check('user')) {
@@ -31,12 +30,7 @@ class DashboardController
 
         $date = Session::get("date");
 
-        $params = [
-            'user_id' => $user['id'],
-            'date' => $date
-        ];
-
-        $todos = $this->db->query('SELECT * FROM todos WHERE user_id = :user_id AND date = :date', $params)->fetchAll();
+        $todos = $this->model->getTodos($user['id'], $date);
         $todos ?? $todos = array_reverse($todos);
 
         loadView("dashboard", ['title' => 'PHPTodoList panel', 'css' => 'dashboard', 'user' => $user, 'todos' => $todos]);
@@ -109,63 +103,71 @@ class DashboardController
         $userId = $user['id'];
         $date = Session::get('date');
 
-        $params = [
-            'title' => $title,
-            'description' => $description,
-            'date' => $date,
-            'user_id' => $userId
-        ];
-
-        $this->db->query('INSERT INTO todos (
-            title, description, date, user_id  
-          ) VALUES (
-              :title, :description, :date, :user_id
-          );', $params);
+        $this->model->setTodo($title, $description, $date, $userId);
 
         redirect('/panel');
     }
 
-    public function updateTodo() {
+    public function editTodo()
+    {
         if (!Session::check('user')) {
             redirect('/logowanie');
             exit;
         }
 
         $id = $_POST['id'];
+        $id = intval($id);
         $title = $_POST['title'];
         $description = $_POST['description'];
 
         $user = Session::get('user');
         $userId = $user['id'];
 
-        $params = [
-            'id' => $id,
-            'title' => $title,
-            'description' => $description,
-            'user_id' => $userId
-        ];
-
-        $this->db->query('UPDATE todos SET title = :title, description = :description WHERE user_id = :user_id AND id = :id;', $params);
-
+        $this->model->updateTodo($id, $title, $description, $userId);
         redirect('/panel');
     }
 
-    public function deleteTodo() {
+    public function deleteTodo()
+    {
         if (!Session::check('user')) {
             redirect('/logowanie');
             exit;
         }
 
         $id = $_POST['id'];
+        $id = intval($id);
 
         $user = Session::get('user');
         $userId = $user['id'];
 
-        $params = [
-            'id' => $id,
-            'user_id' => $userId
-        ];
+        $this->model->deleteTodo($id, $userId);
+    }
+    
+    
+    public function checkTodo()
+    {
+        if (!Session::check('user')) {
+            redirect('/logowanie');
+            exit;
+        }
 
-        $this->db->query('DELETE FROM todos WHERE user_id = :user_id AND id = :id', $params);
+        $id = $_POST['id'];
+        $id = intval($id);
+        
+        $user = Session::get('user');
+        $userId = $user['id'];
+        
+        $checkboxStatus = $this->model->checkboxStatus($id, $userId);
+        $newCheckboxStatus = ($checkboxStatus === 1) ? 0 : 1;
+
+        $this->model->updateTodoCheckbox($id, $userId, $newCheckboxStatus);
+    }
+
+    public function logout()
+    {
+        Session::clear('user');
+        $response['success'] = true;
+        header('Content-Type: application/json');
+        echo json_encode($response);
     }
 }

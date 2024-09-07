@@ -60,7 +60,7 @@ const removeTodo = (e) => {
   const todoDiv = document.getElementById(id);
   const tasksAmount = todoItems.length;
 
-  fetch("/api/delete-todo", {
+  fetch("/api/remove-todo", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -131,14 +131,13 @@ const toggleCompleteTodo = (e) => {
   const id = e.currentTarget.getAttribute("data-todo-id");
 
   const todoDiv = document.getElementById(id);
-
   if (todoDiv.classList.contains("todo-done")) {
     todoDiv.classList.remove("todo-done");
   } else {
     todoDiv.classList.add("todo-done");
   }
 
-  fetch("../app/includes/complete_todo.inc.php", {
+  fetch("/api/check-todo", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

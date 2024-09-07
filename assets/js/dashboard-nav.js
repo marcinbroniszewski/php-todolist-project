@@ -52,7 +52,7 @@ const logoutHandler = () => {
 
 	logoutBtn.classList.add('active');
 
-	fetch('../app/includes/logout.inc.php', {
+	fetch('/user/logout', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -62,7 +62,7 @@ const logoutHandler = () => {
 		.then(response => response.json())
 		.then(data => {
 			if (data.success) {
-				window.location.href = '/todolist-php-project/public';
+				window.location.href = '/';
 			} else {
 				console.error('Wystąpił błąd w skrypcie PHP.');
 			}
