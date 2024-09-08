@@ -19,7 +19,6 @@ class DashboardController
     {
         if (!Session::check('user')) {
             redirect('/logowanie');
-            exit;
         }
 
         $user = Session::get('user');
@@ -38,136 +37,201 @@ class DashboardController
 
     public function getDate()
     {
-        if (Session::check('date')) {
-            $date = Session::get('date');
-        } else {
-            Session::set("date", date("Y-m-d"));
-            $date = Session::get('date');
-        }
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (Session::check('date')) {
+                $date = Session::get('date');
+            } else {
+                Session::set("date", date("Y-m-d"));
+                $date = Session::get('date');
+            }
 
-        header('Content-Type: application/json');
-        echo json_encode(['date' => $date]);
+            header('Content-Type: application/json');
+            echo json_encode(['date' => $date]);
+        } else {
+            redirect('/panel');
+        }
     }
 
     public function sendDate()
     {
-        $date = $_POST['date'];
-        if ($date) {
-            Session::set("date", $date);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $date = $_POST['date'];
+            if ($date) {
+                Session::set("date", $date);
+            } else {
+                Session::set("date", date("Y-m-d"));
+            }
         } else {
-            Session::set("date", date("Y-m-d"));
+            redirect('/panel');
         }
     }
 
     public function getAvatar()
     {
-        if (!Session::check("user")) {
-            redirect('/logowanie');
-            exit;
-        }
-
-        $user = Session::get('user');
-
-        $extensions = ['png', 'jpg', 'jpeg', 'webp'];
-        $avatarPath = null;
-
-        foreach ($extensions as $extension) {
-            $path = basePath('private/icons/' . $user['id'] . '.' . $extension);
-            if (file_exists($path)) {
-                $avatarPath = $path;
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (!Session::check("user")) {
+                redirect('/logowanie');
             }
-        };
 
-        if (!file_exists($avatarPath)) {
-            $avatarPath = basePath('private/icons/default-icon.png');
+            $user = Session::get('user');
+
+            $extensions = ['png', 'jpg', 'jpeg', 'webp'];
+            $avatarPath = null;
+
+            foreach ($extensions as $extension) {
+                $path = basePath('uploads/avatars/' . $user['id'] . '.' . $extension);
+                if (file_exists($path)) {
+                    $avatarPath = $path;
+                }
+            };
+
+            if (!file_exists($avatarPath)) {
+                $avatarPath = basePath('uploads/avatars/default-icon.png');
+            }
+
+            $extension = pathinfo($avatarPath, PATHINFO_EXTENSION);
+
+            header('Content-Type: image/' . $extension);
+            readfile($avatarPath);
+            exit;
+        } else {
+            redirect('/panel');
         }
+    }
 
-        $extension = pathinfo($avatarPath, PATHINFO_EXTENSION);
 
-        header('Content-Type: image/' . $extension);
-        readfile($avatarPath);
-        exit;
+    public function sendAvatar()
+    {
+        if (isset($_FILES['image']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check("user")) {
+                redirect('/logowanie');
+            }
+
+            $imgName = $_FILES['image']['name'];
+            $imgSize = $_FILES['image']['size'];
+            $imgType = $_FILES['image']['type'];
+            $tmpName = $_FILES['image']['tmp_name'];
+            $error = $_FILES['image']['error'];
+
+            $fileExt = strtolower(pathinfo($imgName, PATHINFO_EXTENSION));
+
+            $mime = mime_content_type($tmpName);
+            $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            //Checking if the file is correct
+            if (in_array($mime, $allowedMimeTypes) && $error === 0 && $imgSize <= 100 * 1024) {
+                $user = Session::get('user');
+
+                $newImgName = $user['id'] . '.' . $fileExt;
+                $fileDest = basePath('uploads/avatars') . '/' . $newImgName;
+
+                //Checking if a file with this name exists
+                $allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+                foreach ($allowedExtensions as $ext) {
+                    $existingFile = basePath('uploads/avatars') . '/' . $user['id'] . '.' . $ext;
+
+                    if (file_exists($existingFile)) {
+                        unlink($existingFile);
+                    }
+                }
+
+                move_uploaded_file($tmpName, $fileDest);
+                redirect('/panel');
+            } else {
+                echo "
+                <script>
+                  alert('Przesłanie obrazka nie powiodło się');
+                </script>
+                ";
+            }
+        } else {
+            redirect('/panel');
+        }
     }
 
     public function addTodo()
     {
-        if (!Session::check('user')) {
-            redirect('/logowanie');
-            exit;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check('user')) {
+                redirect('/logowanie');
+            }
+
+            $title = $_POST['todo-title'];
+            $description = $_POST['todo-description'];
+
+            $user = Session::get('user');
+            $userId = $user['id'];
+            $date = Session::get('date');
+
+            $this->model->setTodo($title, $description, $date, $userId);
+
+            redirect('/panel');
+        } else {
+            redirect('/panel');
         }
-
-        $title = $_POST['todo-title'];
-        $description = $_POST['todo-description'];
-
-        $user = Session::get('user');
-        $userId = $user['id'];
-        $date = Session::get('date');
-
-        $this->model->setTodo($title, $description, $date, $userId);
-
-        redirect('/panel');
     }
 
     public function editTodo()
     {
-        if (!Session::check('user')) {
-            redirect('/logowanie');
-            exit;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check('user')) {
+                redirect('/logowanie');
+            }
+
+            $id = $_POST['id'];
+            $id = intval($id);
+            $title = $_POST['title'];
+            $description = $_POST['description'];
+
+            $user = Session::get('user');
+            $userId = $user['id'];
+
+            $this->model->updateTodo($id, $title, $description, $userId);
+            redirect('/panel');
+        } else {
+            redirect('/panel');
         }
-
-        $id = $_POST['id'];
-        $id = intval($id);
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-
-        $user = Session::get('user');
-        $userId = $user['id'];
-
-        $this->model->updateTodo($id, $title, $description, $userId);
-        redirect('/panel');
     }
 
-    public function deleteTodo()
+    public function removeTodo()
     {
-        if (!Session::check('user')) {
-            redirect('/logowanie');
-            exit;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check('user')) {
+                redirect('/logowanie');
+            }
+
+            $id = $_POST['id'];
+            $id = intval($id);
+
+            $user = Session::get('user');
+            $userId = $user['id'];
+
+            $this->model->deleteTodo($id, $userId);
+        } else {
+            redirect('/panel');
         }
-
-        $id = $_POST['id'];
-        $id = intval($id);
-
-        $user = Session::get('user');
-        $userId = $user['id'];
-
-        $this->model->deleteTodo($id, $userId);
     }
-    
-    
+
+
     public function checkTodo()
     {
-        if (!Session::check('user')) {
-            redirect('/logowanie');
-            exit;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check('user')) {
+                redirect('/logowanie');
+            }
+
+            $id = $_POST['id'];
+            $id = intval($id);
+
+            $user = Session::get('user');
+            $userId = $user['id'];
+
+            $checkboxStatus = $this->model->checkboxStatus($id, $userId);
+            $newCheckboxStatus = ($checkboxStatus === 1) ? 0 : 1;
+
+            $this->model->updateTodoCheckbox($id, $userId, $newCheckboxStatus);
+        } else {
+            redirect('/panel');
         }
-
-        $id = $_POST['id'];
-        $id = intval($id);
-        
-        $user = Session::get('user');
-        $userId = $user['id'];
-        
-        $checkboxStatus = $this->model->checkboxStatus($id, $userId);
-        $newCheckboxStatus = ($checkboxStatus === 1) ? 0 : 1;
-
-        $this->model->updateTodoCheckbox($id, $userId, $newCheckboxStatus);
-    }
-
-    public function logout()
-    {
-        Session::clear('user');
-        $response['success'] = true;
-        header('Content-Type: application/json');
-        echo json_encode($response);
     }
 }

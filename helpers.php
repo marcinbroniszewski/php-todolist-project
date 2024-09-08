@@ -46,4 +46,5 @@ function loadPartial(string $name, array $data = []): void
 
  function redirect(string $path): void {
     header('Location: ' . $path);
+    exit;
  }

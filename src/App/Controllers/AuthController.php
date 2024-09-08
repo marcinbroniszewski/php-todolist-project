@@ -171,4 +171,12 @@ class AuthController
       header('Location: /logowanie');
       exit;
    }
+
+   public function logout()
+   {
+       Session::clear('user');
+       $response['success'] = true;
+       header('Content-Type: application/json');
+       echo json_encode($response);
+   }
 }

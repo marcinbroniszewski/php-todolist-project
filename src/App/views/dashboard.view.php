@@ -77,7 +77,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="month-btns-box d-flex justify-content-between my-4 px-4">
+                        <div class="month-btns-box d-flex justify-content-between my-3 px-4">
                             <button class="prev-month-btn btn switch-month-btn"><i class="fa-solid fa-chevron-left fa-2xl" style="color: #ffffff;"></i></button>
                             <button class="next-month-btn btn switch-month-btn"><i class="fa-solid fa-chevron-right fa-2xl" style="color: #ffffff;"></i></button>
                         </div>
@@ -134,16 +134,16 @@
                 <h2 class="mt-5 mx-1 py-3 bigger-text">Ustawienia</h2>
                 <div>
                     <h3 class="settings-h3">Zdjęcie profilowe</h3>
-                    <form action="../app/includes/upload_image.inc.php" method="post" enctype="multipart/form-data" class="icon-form" id="iconForm">
+                    <form action="/user/avatar" method="post" enctype="multipart/form-data" class="icon-form" id="iconForm">
                         <label for="image" class="profile-image-label">
-                            <img src="" alt="profile icon" class="settings-profile-icon">
+                            <img src="/user/avatar" alt="profile icon" class="settings-profile-icon">
                             <div class="edit-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
                                 </svg><span> Edytuj</span>
                             </div>
                         </label>
-                        <input type="file" name="image" id="image" accept=".jpg, .jpeg, .png, .svg">
+                        <input type="file" name="image" id="image" accept=".jpg, .jpeg, .png, .webp">
                     </form>
                 </div>
                 <div class="change-pwd-box">
@@ -253,6 +253,5 @@
     <script src="js/calendar.min.js"></script>
     <script src="js/dashboard-nav.min.js"></script>
     <script src="js/todolist.min.js"></script>
-    <script src="js/settings.min.js"></script>
-
+    <script src="js/dashboard-settings.min.js"></script>
 </body>

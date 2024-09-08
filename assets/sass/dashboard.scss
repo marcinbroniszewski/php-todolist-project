@@ -297,7 +297,6 @@ textarea.form-control {
 }
 
 .icon-form {
-	cursor: pointer;
 
 	.profile-image-label {
 		position: relative;
@@ -306,6 +305,7 @@ textarea.form-control {
 			width: 140px;
 			height: 140px;
 			border-radius: 50%;
+			cursor: pointer;
 		}
 
 		.edit-icon {
@@ -317,6 +317,7 @@ textarea.form-control {
 			font-size: 1.2rem;
 			background-color: black;
 			border-radius: 8px;
+			cursor: pointer;
 		}
 	}
 	input[type='file'] {
