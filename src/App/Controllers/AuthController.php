@@ -16,7 +16,7 @@ class AuthController
       $this->model = new AuthModel();
    }
 
-   public function register()
+   public function register(): void
    {
       $errors = [];
       $oldValues = [];
@@ -25,14 +25,14 @@ class AuthController
          $errors = Session::get('signup-errors');
       }
 
-      if (Session::check('signup-errors')) {
+      if (Session::check('signup-values')) {
          $oldValues = Session::get('signup-values');
       }
       loadView("register", ['title' => 'Zarejestruj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
       Session::clearAll();
    }
 
-   public function login()
+   public function login(): void
    {
       $errors = [];
       $oldValues = [];
@@ -48,7 +48,8 @@ class AuthController
       Session::clearAll();
    }
 
-   public function store()
+   //Sends new user data
+   public function store(): void
    {
       $allowedFields = ['firstname', 'lastname', 'email', 'pwd', 'confirm-pwd'];
       $newAuthData = array_intersect_key($_POST, array_flip($allowedFields));
@@ -119,17 +120,105 @@ class AuthController
             Session::set('signup-values', $oldValues);
          }
 
-         header("Location: /rejestracja");
+         redirect('/rejestracja');
          exit();
       }
 
-      //Create user account
-      $this->model->setUser($firstname, $lastname, $email, $pwd);
+      $token = bin2hex(random_bytes(16));
+      $tokenHash = hash("sha256", $token);
+      $tokenExpiry = date("Y-m-d H:i:s", time() + 60 * 30);
 
-      header('Location: /rejestracja');
+      $userData = [
+         'firstname' => $firstname,
+         'lastname' => $lastname,
+         'email' => $email,
+         'pwd' => $pwd,
+         'token' => $tokenHash,
+         'token_expiry' => $tokenExpiry
+      ];
+
+      $activationLink = "http://localhost:3000/aktywacja-konta?token=" . $tokenHash;
+
+      //Sending activation link
+      $this->sendActivationEmail($email, $activationLink, $userData);
    }
 
-   public function authenticate()
+   private function sendActivationEmail(string $email, string $activationLink, array $userData): void
+   {
+      $mail = require basePath('config/mail.php');
+
+      $mail->addAddress($email);
+      $mail->Subject = "Aktywacja konta";
+      $mail->Body = <<<END
+          Kliknij <a href="$activationLink">tutaj</a>, aby aktywować konto.
+          END;
+
+      if ($mail->send()) {
+         $this->model->setUserToken(
+            $userData['firstname'],
+            $userData['lastname'],
+            $userData['email'],
+            $userData['pwd'],
+            $userData['token'],
+            $userData['token_expiry'],
+         );
+
+         Session::start();
+         Session::set('signup_success', $userData['email']);
+
+         redirect('/rejestracja-info');
+      }
+   }
+
+   public function registerInfo(): void
+   {
+      if (!Session::check('signup_success')) {
+         redirect('/');
+      }
+
+      loadView('register-info', ['title' => 'Rejestracja pomyślna', 'css' => 'sign-form']);
+   }
+
+   //Account activation
+   public function activate(): void
+   {
+      $token = $_GET['token'];
+
+      if (!$token) {
+         redirect('/');
+      }
+
+      $errors = [];
+
+      $userData = $this->model->getUserRegisterData($token);
+
+      if (!$userData) {
+         $errors['token-not-exist'] = 'Podany token nie istnieje';
+         loadView('account-activation', ['title' => 'Aktywacja konta', 'css' => 'sign-form', 'errors' => $errors]);
+         exit;
+      }
+
+      $tokenTimestamp = strtotime($userData['token_expiry']);
+      $currentTimestamp = time();
+
+      if ($tokenTimestamp < $currentTimestamp) {
+         $errors['token-expired'] = 'Token wygasł';
+      }
+
+      if (empty($errors)) {
+         $firstname = $userData['firstname'];
+         $lastname = $userData['lastname'];
+         $email = $userData['email'];
+         $pwd = $userData['pwd'];
+
+         $this->model->setUser($firstname, $lastname, $email, $pwd);
+      }
+
+      $this->model->deleteUserToken($token);
+      loadView('account-activation', ['title' => 'Aktywacja konta', 'css' => 'sign-form', 'errors' => $errors]);
+   }
+
+   public function authenticate(): never
    {
       $allowedFields = ['email', 'pwd'];
       $newAuthData = array_intersect_key($_POST, array_flip($allowedFields));
@@ -157,7 +246,7 @@ class AuthController
          $user = $this->model->getUser($email);
 
          if (!$user) {
-            $errors['email'] = 'Użytkownik o podanym e-mailu nieistnieje';
+            $errors['email'] = 'Użytkownik o podanym e-mailu nie istnieje';
          } else if (!password_verify($pwd, $user['pwd'])) {
             $errors['pwd'] = 'Podane hasło jest nieprawidłowe';
          } else {
@@ -168,15 +257,15 @@ class AuthController
       }
       Session::set('signin-errors', $errors);
       Session::set('signin-values', $oldValues);
-      header('Location: /logowanie');
+      redirect('/logowanie');
       exit;
    }
 
-   public function logout()
+   public function logout(): void
    {
-       Session::clear('user');
-       $response['success'] = true;
-       header('Content-Type: application/json');
-       echo json_encode($response);
+      Session::clear('user');
+      $response['success'] = true;
+      header('Content-Type: application/json');
+      echo json_encode($response);
    }
 }

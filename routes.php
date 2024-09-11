@@ -3,6 +3,8 @@
 //GET
 $router->get('/', 'HomeController@index');
 $router->get('/rejestracja', 'AuthController@register');
+$router->get('/rejestracja-info', 'AuthController@registerInfo');
+$router->get('/aktywacja-konta', 'AuthController@activate');
 $router->get('/logowanie', 'AuthController@login');
 $router->get('/panel', 'DashboardController@index');
 $router->get('/api/get-date', 'DashboardController@getDate');

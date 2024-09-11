@@ -66,7 +66,7 @@ class DashboardController
         }
     }
 
-    public function getAvatar()
+    public function getAvatar(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if (!Session::check("user")) {
@@ -85,7 +85,7 @@ class DashboardController
                 }
             };
 
-            if (!file_exists($avatarPath)) {
+            if (!$avatarPath) {
                 $avatarPath = basePath('uploads/avatars/default-icon.png');
             }
 
@@ -100,7 +100,7 @@ class DashboardController
     }
 
 
-    public function sendAvatar()
+    public function sendAvatar(): void
     {
         if (isset($_FILES['image']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Session::check("user")) {
@@ -149,7 +149,7 @@ class DashboardController
         }
     }
 
-    public function addTodo()
+    public function addTodo(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Session::check('user')) {
@@ -171,7 +171,7 @@ class DashboardController
         }
     }
 
-    public function editTodo()
+    public function editTodo(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Session::check('user')) {
@@ -193,7 +193,7 @@ class DashboardController
         }
     }
 
-    public function removeTodo()
+    public function removeTodo(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Session::check('user')) {
@@ -213,7 +213,7 @@ class DashboardController
     }
 
 
-    public function checkTodo()
+    public function checkTodo(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Session::check('user')) {
