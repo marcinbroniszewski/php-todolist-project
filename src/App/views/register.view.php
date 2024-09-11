@@ -4,7 +4,7 @@
 <body>
     <section class="d-flex flex-column justify-content-center align-items-center sign-section">
         <h1 class="sign-h1">Rejestracja</h1>
-        <form class="sign-form" action="/rejestracja" method="post">
+        <form class="sign-form" action="/user/register" method="post">
             <label for="firstname" class="form-label">Imię</label>
             <input type="text" class="form-control sign-input" name="firstname" id="first-name" value="<?php echo $oldValues['firstname'] ?? '' ?>">
             <?php if (isset($errors['firstname'])) : ?>

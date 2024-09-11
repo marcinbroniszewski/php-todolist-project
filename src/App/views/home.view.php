@@ -11,7 +11,7 @@
         <p class="home-subtext px-sm-5 pb-3 mb-5">Dzięki todo liście lepiej zorganizujesz czas zwiększając szanse na osiągnięcie celów.
           Osiągnij spokój i kontrolę planując swój tydzień już teraz.
         </p>
-        <a class="signup-btn" href="signup">
+        <a class="signup-btn" href="/rejestracja">
           Zacznij za darmo
         </a>
       </div>

@@ -32,6 +32,15 @@ class AuthController
       Session::clearAll();
    }
 
+   public function registerInfo(): void
+   {
+      if (!Session::check('signup_success')) {
+         redirect('/');
+      }
+
+      loadView('register-info', ['title' => 'Rejestracja pomyślna', 'css' => 'sign-form']);
+   }
+
    public function login(): void
    {
       $errors = [];
@@ -46,6 +55,76 @@ class AuthController
       }
       loadView("login", ['title' => 'Zaloguj się', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
       Session::clearAll();
+   }
+
+   public function recoverPassword(): void
+   {
+      $errors = [];
+      $oldValues = [];
+
+      if (Session::check('recover-errors')) {
+         $errors = Session::get('recover-errors');
+      }
+
+      if (Session::check('recover-values')) {
+         $oldValues = Session::get('recover-values');
+      }
+
+      loadView('recover-password', ['title' => 'Odzyskiwanie hasła', 'css' => 'sign-form', 'errors' => $errors, 'oldValues' => $oldValues]);
+      Session::clearAll();
+   }
+
+   public function recoverPasswordInfo(): void
+   {
+      if (!Session::check('recover_success')) {
+         redirect('/');
+      }
+
+      loadView('recover-password-info', ['title' => 'Odzyskiwanie hasła pomyślne', 'css' => 'sign-form']);
+   }
+
+   public function resetPassword(): void
+   {
+      $token = $_GET['token'];
+
+      if (!$token) {
+         redirect('/');
+      }
+
+      $tokenErrors = [];
+      $tokenData = $this->model->getTokenData($token, 'recover_pwd_tokens');
+
+      if (empty($tokenData)) {
+         $tokenErrors['token-not-exist'] = 'Podany token nie istnieje';
+         loadView('reset-password', ['title' => 'Aktywacja konta', 'css' => 'sign-form', 'token' => $token, 'tokenErrors' => $tokenErrors]);
+         exit;
+      }
+
+      $tokenTimestamp = strtotime($tokenData['token_expiry']);
+      $currentTimestamp = time();
+
+      if ($tokenTimestamp < $currentTimestamp) {
+         $tokenErrors['token-expired'] = 'Token wygasł';
+         $this->model->deleteUserToken($token, 'recover_pwd_tokens');
+      }
+
+      $formErrors = [];
+
+      if (Session::check('reset-pwd-errors')) {
+         $formErrors = Session::get('reset-pwd-errors');
+      }
+
+      loadView('reset-password', ['title' => 'Aktywacja konta', 'css' => 'sign-form', 'token' => $token, 'tokenErrors' => $tokenErrors, 'formErrors' => $formErrors]);
+      Session::clearAll();
+   }
+
+   public function resetPasswordInfo(): void
+   {
+      if (!Session::check('reset-pwd-success')) {
+         redirect('/');
+      }
+
+      loadView('reset-password-info', ['title' => 'Hasło zostało zmienione', 'css' => 'sign-form']);
    }
 
    //Sends new user data
@@ -114,7 +193,7 @@ class AuthController
 
       //Checking if token was already created for that specific email
       if (empty($errors['email'])) {
-         $emailFromUserTokens = $this->model->getEmailFromUserTokens($email);
+         $emailFromUserTokens = $this->model->getEmailFromTokenTable($email, 'user_tokens');
 
          if ($emailFromUserTokens) {
             $errors['email'] = 'Konto o podanym e-mailu czeka na aktywację';
@@ -180,15 +259,6 @@ class AuthController
       }
    }
 
-   public function registerInfo(): void
-   {
-      if (!Session::check('signup_success')) {
-         redirect('/');
-      }
-
-      loadView('register-info', ['title' => 'Rejestracja pomyślna', 'css' => 'sign-form']);
-   }
-
    //Account activation
    public function activate(): void
    {
@@ -200,7 +270,7 @@ class AuthController
 
       $errors = [];
 
-      $userData = $this->model->getUserRegisterData($token);
+      $userData = $this->model->getTokenData($token, 'user_tokens');
 
       if (!$userData) {
          $errors['token-not-exist'] = 'Podany token nie istnieje';
@@ -224,7 +294,7 @@ class AuthController
          $this->model->setUser($firstname, $lastname, $email, $pwd);
       }
 
-      $this->model->deleteUserToken($token);
+      $this->model->deleteUserToken($token, 'user_tokens');
       loadView('account-activation', ['title' => 'Aktywacja konta', 'css' => 'sign-form', 'errors' => $errors]);
    }
 
@@ -269,6 +339,154 @@ class AuthController
       Session::set('signin-values', $oldValues);
       redirect('/logowanie');
       exit;
+   }
+
+   public function sendRecoverToken(): void
+   {
+      if ($_SERVER['REQUEST_METHOD'] = 'POST') {
+         $allowedFields = ['email'];
+         $newRecoverData = array_intersect_key($_POST, array_flip($allowedFields));
+
+         $email = $newRecoverData['email'];
+
+         //Checking for errors
+         $errors = [];
+         $oldValues = [];
+
+         if ($email === '') {
+            $errors['email'] = 'Podaj e-mail';
+         } else if (!Validation::email($email)) {
+            $errors['email'] = 'Podany e-mail jest nieprawidłowy';
+            $oldValues['email'] = $email;
+         }
+         
+         //Checking if token was already created for that specific email
+         if (empty($errors['email'])) {
+            $emailFromRecoverPwdTokens = $this->model->getEmailFromTokenTable($email, 'recover_pwd_tokens');
+
+            if ($emailFromRecoverPwdTokens) {
+               $errors['email'] = 'Na podany adres e-mail został już wysłany link do resetu hasła';
+               $oldValues['email'] = $email;
+            }
+         }
+
+         //Checking if email exists in database
+         if (empty($errors['email'])) {
+            $user = $this->model->getUser($email);
+
+            if ($user) {
+               $token = bin2hex(random_bytes(16));
+               $tokenHash = hash("sha256", $token);
+               $tokenExpiry = date("Y-m-d H:i:s", time() + 60 * 30);
+
+               $tokenData = [
+                  'token' => $tokenHash,
+                  'token_expiry' => $tokenExpiry
+               ];
+
+               $activationLink = "http://localhost:3000/reset-hasla?token=" . $tokenHash;
+               $this->sendRecoverTokenEmail($email, $tokenData, $activationLink);
+            } else {
+               $errors['email'] = 'Nie ma użytkownika o podanym adresie e-mail';
+               $oldValues['email'] = $email;
+            }
+         }
+
+         Session::set('recover-errors', $errors);
+
+         if (isset($oldValues)) {
+            Session::set('recover-values', $oldValues);
+         }
+
+         redirect('/odzyskiwanie-hasla');
+         exit();
+      }
+   }
+
+   private function sendRecoverTokenEmail($email, $tokenData, $activationLink): void
+   {
+      $mail = require basePath('config/mail.php');
+
+      $mail->addAddress($email);
+      $mail->Subject = "Odzyskiwanie hasła";
+      $mail->Body = <<<END
+          Kliknij <a href="$activationLink">tutaj</a>, aby zmienić hasło.
+          END;
+
+      if ($mail->send()) {
+         $this->model->setRecoverToken(
+            $email,
+            $tokenData['token'],
+            $tokenData['token_expiry']
+         );
+
+         Session::start();
+         Session::set('recover_success', $email);
+
+         redirect('/odzyskiwanie-hasla-info');
+      }
+   }
+
+   public function editPassword(): void
+   {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+         $allowedFields = ['token', 'new-password', 'new-password-confirm'];
+         $newAuthData = array_intersect_key($_POST, array_flip($allowedFields));
+         $newAuthData = array_map('sanitize', $newAuthData);
+
+         $token = $newAuthData['token'];
+         $newPassword = $newAuthData['new-password'];
+         $newPasswordConfirm = $newAuthData['new-password-confirm'];
+
+         //Checking for errors
+         $formErrors = [];
+
+         if (!$token) {
+            $this->resetPassword();
+         }
+
+         if ($newPassword === '') {
+            $formErrors['new-password'] = 'Podaj hasło';
+         } else if (!Validation::string($newPassword, 4, 50)) {
+            $formErrors['new-password'] = 'Hasło musi się składać od 4 do 50 znaków';
+         }
+
+         if (!Validation::match($newPassword, $newPasswordConfirm)) {
+            $formErrors['new-password-confirm'] = 'Podane hasła nie są takie same';
+         }
+
+         if (empty($formErrors)) {
+            $tokenData = $this->model->getTokenData($token, 'recover_pwd_tokens');
+
+            if (empty($tokenData)) {
+               $this->resetPassword();
+               exit;
+            }
+
+            $tokenTimestamp = strtotime($tokenData['token_expiry']);
+            $currentTimestamp = time();
+
+            if ($tokenTimestamp < $currentTimestamp) {
+               $this->resetPassword();
+               exit;
+            }
+
+            $email = $tokenData['email'];
+
+            $this->model->updatePassword($email, $newPassword);
+            $this->model->deleteUserToken($token, 'recover_pwd_tokens');
+            Session::start();
+            Session::set('reset-pwd-success', $email);
+
+            redirect('/reset-hasla-info');
+         } else {
+            Session::start();
+            Session::set('reset-pwd-errors', $formErrors);
+
+            redirect('/reset-hasla?token=' . $token);
+            exit();
+         }
+      }
    }
 
    public function logout(): void

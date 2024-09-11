@@ -53,31 +53,53 @@ class AuthModel
         $this->db->query('INSERT INTO users (firstname, lastname, email, pwd) VALUES (:firstname, :lastname, :email, :pwd)', $params);
     }
 
-    public function getUserRegisterData(string $token): array | bool
+    public function getTokenData(string $token, string $table): array | bool
     {
         $params = [
             'token' => $token
         ];
 
-        $userData = $this->db->query('SELECT * FROM user_tokens WHERE token = :token', $params)->fetch();
-        return $userData;
+        $tokenData = $this->db->query("SELECT * FROM $table WHERE token = :token", $params)->fetch();
+        return $tokenData;
     }
 
-    public function deleteUserToken(string $token): void {
+    public function deleteUserToken(string $token, string $table): void
+    {
         $params = [
             'token' => $token
         ];
 
-        $this->db->query('DELETE FROM user_tokens WHERE token = :token', $params);
+        $this->db->query("DELETE FROM $table WHERE token = :token", $params);
     }
 
-    public function getEmailFromUserTokens(string $email): array | bool
+    public function getEmailFromTokenTable(string $email, $table): array | bool
     {
         $params = [
-            'email'=> $email
+            'email' => $email
         ];
 
-        $email = $this->db->query('SELECT email FROM user_tokens WHERE email = :email', $params)->fetch();
+        $email = $this->db->query("SELECT email FROM $table WHERE email = :email", $params)->fetch();
         return $email;
+    }
+
+    public function setRecoverToken(string $email, string $token, string $tokenExpiry): void
+    {
+        $params = [
+            'email' => $email,
+            'token' => $token,
+            'token_expiry' => $tokenExpiry
+        ];
+
+        $this->db->query('INSERT INTO recover_pwd_tokens (email, token, token_expiry) VALUES (:email, :token, :token_expiry)', $params);
+    }
+
+    public function updatePassword(string $email, string $newPassword): void
+    {
+        $params = [
+            'email'=> $email,
+            'pwd' => password_hash($newPassword, PASSWORD_DEFAULT),
+        ];
+
+        $this->db->query('UPDATE users SET pwd = :pwd WHERE email = :email', $params);
     }
 }
