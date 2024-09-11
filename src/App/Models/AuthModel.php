@@ -70,4 +70,14 @@ class AuthModel
 
         $this->db->query('DELETE FROM user_tokens WHERE token = :token', $params);
     }
+
+    public function getEmailFromUserTokens(string $email): array | bool
+    {
+        $params = [
+            'email'=> $email
+        ];
+
+        $email = $this->db->query('SELECT email FROM user_tokens WHERE email = :email', $params)->fetch();
+        return $email;
+    }
 }

@@ -112,6 +112,16 @@ class AuthController
          }
       }
 
+      //Checking if token was already created for that specific email
+      if (empty($errors['email'])) {
+         $emailFromUserTokens = $this->model->getEmailFromUserTokens($email);
+
+         if ($emailFromUserTokens) {
+            $errors['email'] = 'Konto o podanym e-mailu czeka na aktywację';
+            $oldValues['email'] = $email;
+         }
+      }
+
       //Handling errors   
       if (!empty($errors)) {
          Session::set('signup-errors', $errors);
