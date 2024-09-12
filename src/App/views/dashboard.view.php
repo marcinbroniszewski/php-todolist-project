@@ -222,21 +222,21 @@
                     <button type="button" class="btn-close fs-5" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="../app/includes/settings_change_pwd.inc.php" method="post" id="changePwdModalForm">
+                    <form action="/user/change-password" method="post" id="changePwdModalForm">
                         <div class="mb-3">
-                            <label for="new-password">Aktualne hasło</label>
+                            <label for="current-password">Aktualne hasło</label>
                             <input type="password" id="current-pwd-input" class="form-control fs-5" placeholder="Podaj aktualne hasło" name='current-password' autocomplete>
-                            <p class="error-text text-danger d-none">Hasło składa się z co najmniej 8 znaków</p>
+                            <p class="error-text text-danger d-none">Hasło składa się z co najmniej 4 znaków</p>
                         </div>
                         <div class="mb-3">
                             <label for="new-password" class="fs-5">Nowe hasło</label>
                             <input type="password" id="new-pwd-input" class="form-control fs-5" placeholder="Podaj nowe hasło" name='new-password' autocomplete>
-                            <p class="error-text text-danger d-none">Hasło musi składać się z co najmniej 8 znaków</p>
+                            <p class="error-text text-danger d-none">Hasło musi składać się z co najmniej 4 znaków</p>
                         </div>
                         <div class="mb-3">
                             <label for="confirm-password" class="fs-5">Powtórz hasło</label>
                             <input type="password" id="confirm-pwd-input" class="form-control fs-5" placeholder="Potwierdź hasło" name='confirm-password' autocomplete>
-                            <p class="error-text text-danger d-none">Podane hasło nie jest takie samo</p>
+                            <p class="error-text text-danger d-none">Podane hasła nie są takie same</p>
                         </div>
                         <p>Uwaga! Po zmianie hasła zostaniesz wylogowany z konta.</p>
                         <div class="mt-3">

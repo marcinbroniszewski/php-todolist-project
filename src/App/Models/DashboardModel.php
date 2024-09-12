@@ -86,4 +86,13 @@ class DashboardModel
 
         $this->db->query('UPDATE todos SET checked = :value WHERE id = :id AND user_id = :user_id', $params);
     }
+
+    public function updatePassword(int $id, string $newPassword): void {
+        $params = [
+            'id'=> $id,
+            'pwd' => password_hash($newPassword, PASSWORD_DEFAULT)
+        ];
+
+        $this->db->query('UPDATE users SET pwd = :pwd WHERE id = :id', $params);
+    }
 }

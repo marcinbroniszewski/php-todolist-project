@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Framework\Session;
+use Framework\{Session, Validation};
 use App\Models\DashboardModel;
 
 class DashboardController
@@ -230,6 +230,59 @@ class DashboardController
             $newCheckboxStatus = ($checkboxStatus === 1) ? 0 : 1;
 
             $this->model->updateTodoCheckbox($id, $userId, $newCheckboxStatus);
+        } else {
+            redirect('/panel');
+        }
+    }
+
+    public function changePassword(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!Session::check('user')) {
+                redirect('/logowanie');
+            }
+
+            $user = Session::get('user');
+            $userId = $user['id'];
+            $userId = intval($userId);
+
+            $allowedFields = ['current-password', 'new-password', 'confirm-password'];
+            $newPwdData = array_intersect_key($_POST, array_flip($allowedFields));
+
+            $currentPassword = $newPwdData['current-password'];
+            $newPassword = $newPwdData['new-password'];
+            $confirmPassword = $newPwdData['confirm-password'];
+
+            //Checking for errors
+            $errors = [];
+
+            if ($currentPassword === '') {
+                $errors['current-password'] = 'Podaj aktualne hasło';
+            }
+
+            if ($newPassword === '') {
+                $errors['new-password'] = 'Podaj nowe hasło';
+            }
+
+            if (empty($errors)) {
+                if (!Validation::match($newPassword, $confirmPassword)) {
+                    $errors['confirm-password'] = 'Podane hasła nie są takie same';
+                }
+
+                if (!password_verify($currentPassword, $user['pwd'])) {
+                    $errors['current-password'] = 'Podane hasło jest nieprawidłowe';
+                }
+            }
+
+            if (empty($errors)) {
+                $this->model->updatePassword($userId, $newPassword);
+                Session::clearAll();
+                Session::start();
+                Session::set('reset-pwd-success', 'success');
+                redirect('/reset-hasla-info');
+            } else {
+                redirect('/panel');
+            }
         } else {
             redirect('/panel');
         }

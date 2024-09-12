@@ -27,13 +27,13 @@ const sendNewProfileIcon = () => {
 
 const checkPwdInputs = () => {
   let error = false;
-  if (currentPwdInput.value.length < 8) {
+  if (currentPwdInput.value.length < 4) {
     error = true;
     const errorParagraph = currentPwdInput.nextElementSibling;
     currentPwdInput.classList.add("error");
     errorParagraph.classList.remove("d-none");
   }
-  if (newPwdInput.value.length < 8) {
+  if (newPwdInput.value.length < 4) {
     error = true;
     const errorParagraph = newPwdInput.nextElementSibling;
     newPwdInput.classList.add("error");
